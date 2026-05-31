@@ -1,1 +1,1044 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Formo Proposal Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600;700&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --black: #191816;
+  --black2: #1f1d1a;
+  --gold: #C9A96E;
+  --gold-dim: rgba(201,169,110,0.2);
+  --gold-line: rgba(201,169,110,0.3);
+  --cream: #F8F4EF;
+  --muted: #9a9080;
+  --muted2: #6a6055;
+  --red: #c97070;
+  --green: #70c98a;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
 
+body {
+  font-family: 'Jost', sans-serif;
+  background: var(--black);
+  color: var(--cream);
+  min-height: 100vh;
+}
+
+/* ── NAV ── */
+nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 40px;
+  border-bottom: 1px solid var(--gold-line);
+  position: sticky; top:0; z-index:100;
+  background: rgba(25,24,22,0.96);
+  backdrop-filter: blur(12px);
+}
+.nav-brand {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px;
+  letter-spacing: 4px;
+  color: var(--gold);
+  text-transform: uppercase;
+}
+.nav-brand span { color: var(--cream); font-weight:300; }
+.nav-tabs { display:flex; gap:6px; }
+.tab-btn {
+  background: none;
+  border: 1px solid transparent;
+  color: var(--muted);
+  padding: 8px 20px;
+  font-family: 'Jost', sans-serif;
+  font-size: 13px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all .2s;
+}
+.tab-btn:hover { color: var(--cream); border-color: var(--gold-line); }
+.tab-btn.active { color: var(--gold); border-color: var(--gold); }
+
+/* ── VIEWS ── */
+.view { display:none; }
+.view.active { display:block; }
+
+/* ── BUILDER ── */
+.builder {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  min-height: calc(100vh - 65px);
+}
+
+.form-panel {
+  padding: 48px 48px 80px;
+  border-right: 1px solid rgba(255,255,255,.06);
+  overflow-y: auto;
+}
+
+.preview-panel {
+  padding: 32px 28px;
+  position: sticky;
+  top: 65px;
+  height: calc(100vh - 65px);
+  overflow-y: auto;
+  background: var(--black2);
+}
+
+/* ── FORM SECTIONS ── */
+.section-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--cream);
+  margin-bottom: 6px;
+}
+.section-sub {
+  font-size: 13px;
+  color: var(--muted);
+  letter-spacing: 1px;
+  margin-bottom: 28px;
+}
+.form-divider {
+  width: 40px; height: 1px;
+  background: var(--gold);
+  margin: 36px 0;
+}
+.form-group { margin-bottom: 20px; }
+label {
+  display: block;
+  font-size: 11px;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+input[type="text"], input[type="number"], textarea, select {
+  width: 100%;
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 2px;
+  color: var(--cream);
+  font-family: 'Jost', sans-serif;
+  font-size: 15px;
+  padding: 12px 16px;
+  transition: border-color .2s;
+  outline: none;
+}
+input:focus, textarea:focus, select:focus {
+  border-color: var(--gold);
+  background: rgba(201,169,110,.06);
+}
+textarea { resize: vertical; min-height: 100px; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+/* ── SCOPE ITEMS ── */
+.scope-list { display:flex; flex-direction:column; gap:10px; margin-bottom:16px; }
+.scope-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 2px;
+  padding: 10px 14px;
+}
+.scope-item input {
+  flex:1; background:none; border:none;
+  padding: 0; font-size: 14px;
+}
+.scope-item input:focus { border:none; background:none; }
+.del-btn {
+  background: none; border: none;
+  color: var(--muted2); cursor: pointer;
+  font-size: 18px; line-height:1;
+  transition: color .15s;
+}
+.del-btn:hover { color: var(--red); }
+
+/* ── LINE ITEMS ── */
+.line-items { display:flex; flex-direction:column; gap:10px; margin-bottom:16px; }
+.line-item {
+  display: grid;
+  grid-template-columns: 1fr 140px 36px;
+  gap: 10px;
+  align-items: center;
+}
+.line-item input { margin:0; }
+
+.total-display {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border: 1px solid var(--gold-line);
+  background: rgba(201,169,110,.06);
+  margin-top: 8px;
+}
+.total-display .label { font-size: 12px; letter-spacing:2px; text-transform:uppercase; color: var(--muted); }
+.total-display .amount {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 32px;
+  color: var(--gold);
+  font-weight: 600;
+}
+
+/* ── ADD BTN ── */
+.add-btn {
+  background: none;
+  border: 1px dashed rgba(201,169,110,.4);
+  color: var(--gold);
+  font-family: 'Jost', sans-serif;
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: all .2s;
+  width: 100%;
+}
+.add-btn:hover { background: rgba(201,169,110,.08); border-style: solid; }
+
+/* ── IMAGE UPLOAD ── */
+.upload-zones { display:flex; flex-direction:column; gap:16px; }
+.upload-zone {
+  border: 1px dashed rgba(255,255,255,.15);
+  border-radius: 2px;
+  padding: 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: all .2s;
+  position: relative;
+}
+.upload-zone:hover { border-color: var(--gold); background: rgba(201,169,110,.04); }
+.upload-zone input[type="file"] {
+  position: absolute; inset:0; opacity:0; cursor:pointer;
+  width:100%; height:100%;
+}
+.upload-zone-label {
+  font-size: 12px; letter-spacing:2px; text-transform:uppercase;
+  color: var(--gold); display:block; margin-bottom:6px;
+}
+.upload-zone-sub { font-size: 13px; color: var(--muted); }
+.upload-previews {
+  display: flex; flex-wrap:wrap; gap:8px; margin-top:12px;
+}
+.preview-thumb {
+  width: 72px; height: 72px;
+  object-fit: cover;
+  border: 1px solid var(--gold-line);
+  border-radius: 2px;
+}
+
+/* ── GENERATE BTN ── */
+.generate-btn {
+  width: 100%;
+  background: var(--gold);
+  color: var(--black);
+  border: none;
+  font-family: 'Jost', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  padding: 18px;
+  cursor: pointer;
+  margin-top: 40px;
+  transition: all .2s;
+  position: relative;
+  overflow: hidden;
+}
+.generate-btn:hover { background: #d4b47a; }
+.generate-btn:disabled {
+  opacity: .5; cursor: not-allowed;
+}
+.generate-btn .spinner {
+  display:none; width:18px; height:18px;
+  border: 2px solid rgba(0,0,0,.3);
+  border-top-color: var(--black);
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+  margin: 0 auto;
+}
+.generate-btn.loading .btn-text { display:none; }
+.generate-btn.loading .spinner { display:block; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── PREVIEW PANEL ── */
+.preview-panel h3 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 18px;
+  color: var(--gold);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--gold-line);
+}
+.preview-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.preview-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255,255,255,.05);
+}
+.preview-row .pk { color: var(--muted); letter-spacing:.5px; }
+.preview-row .pv { color: var(--cream); text-align:right; }
+.preview-total {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 36px;
+  color: var(--gold);
+  text-align: center;
+  padding: 20px 0;
+  border: 1px solid var(--gold-line);
+  background: rgba(201,169,110,.06);
+  margin: 16px 0;
+}
+.preview-scope {
+  margin-top: 16px;
+}
+.preview-scope-item {
+  padding: 8px 0 8px 14px;
+  border-bottom: 1px solid rgba(255,255,255,.05);
+  font-size: 13px;
+  color: var(--muted);
+  position: relative;
+}
+.preview-scope-item::before {
+  content:'';
+  width:5px; height:5px;
+  background: var(--gold);
+  transform: rotate(45deg);
+  position:absolute; left:0; top:14px;
+}
+.proposal-link {
+  display: block;
+  text-align: center;
+  padding: 14px;
+  background: rgba(201,169,110,.12);
+  border: 1px solid var(--gold-line);
+  color: var(--gold);
+  text-decoration: none;
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-top: 16px;
+  transition: all .2s;
+}
+.proposal-link:hover { background: rgba(201,169,110,.2); }
+.copy-btn {
+  display: block; width:100%;
+  text-align: center;
+  padding: 12px;
+  background: none;
+  border: 1px solid rgba(255,255,255,.1);
+  color: var(--muted);
+  font-family: 'Jost', sans-serif;
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-top: 8px;
+  cursor: pointer;
+  transition: all .2s;
+}
+.copy-btn:hover { border-color: var(--cream); color: var(--cream); }
+.copy-btn.copied { border-color: var(--green); color: var(--green); }
+
+/* ── DASHBOARD ── */
+.dashboard { padding: 48px; max-width: 1200px; margin: 0 auto; }
+.dash-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 40px;
+}
+.dash-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 42px;
+  font-weight: 600;
+}
+.dash-title span { color: var(--gold); }
+.proposals-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 20px;
+}
+.proposal-card {
+  background: rgba(255,255,255,.02);
+  border: 1px solid rgba(255,255,255,.08);
+  padding: 28px;
+  transition: border-color .2s;
+  cursor: pointer;
+}
+.proposal-card:hover { border-color: var(--gold-line); }
+.pc-client {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 24px;
+  margin-bottom: 4px;
+}
+.pc-project { font-size: 13px; color: var(--muted); margin-bottom: 20px; }
+.pc-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.pc-stat { text-align: center; }
+.pc-stat .num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 28px;
+  color: var(--gold);
+  display: block;
+}
+.pc-stat .lbl { font-size: 10px; letter-spacing:1.5px; text-transform:uppercase; color: var(--muted); }
+.pc-total {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 32px;
+  color: var(--gold);
+  text-align: right;
+}
+.pc-date { font-size: 11px; color: var(--muted2); margin-top: 4px; text-align:right; }
+.pc-actions {
+  display: flex; gap:8px; margin-top:16px;
+}
+.pc-btn {
+  flex:1; padding:9px;
+  background: none;
+  border: 1px solid rgba(255,255,255,.1);
+  color: var(--muted);
+  font-family: 'Jost', sans-serif;
+  font-size: 11px;
+  letter-spacing:1.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+  text-decoration: none;
+  text-align: center;
+  transition: all .2s;
+}
+.pc-btn:hover { border-color: var(--gold); color: var(--gold); }
+.pc-btn.primary { border-color: var(--gold-line); color: var(--gold); }
+
+.viewed-badge {
+  display: inline-block;
+  font-size: 10px; letter-spacing:1.5px; text-transform:uppercase;
+  padding: 3px 10px;
+  border-radius: 20px;
+  margin-bottom: 12px;
+}
+.viewed-badge.opened { background: rgba(112,201,138,.15); color: var(--green); border: 1px solid rgba(112,201,138,.3); }
+.viewed-badge.unopened { background: rgba(255,255,255,.05); color: var(--muted); border: 1px solid rgba(255,255,255,.1); }
+
+.empty-state {
+  grid-column: 1/-1;
+  text-align: center;
+  padding: 80px 40px;
+  color: var(--muted);
+}
+.empty-state .big {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 48px;
+  color: rgba(201,169,110,.3);
+  margin-bottom: 12px;
+}
+
+/* ── MODAL ── */
+.modal-overlay {
+  display:none; position:fixed; inset:0;
+  background: rgba(0,0,0,.85);
+  z-index:200;
+  align-items:center; justify-content:center;
+}
+.modal-overlay.open { display:flex; }
+.modal {
+  background: var(--black2);
+  border: 1px solid var(--gold-line);
+  width: 90%; max-width: 600px;
+  max-height: 85vh;
+  overflow-y: auto;
+  padding: 40px;
+}
+.modal-close {
+  float:right; background:none; border:none;
+  color: var(--muted); font-size:24px; cursor:pointer;
+  transition: color .15s;
+}
+.modal-close:hover { color: var(--cream); }
+.modal h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 28px; margin-bottom:4px;
+}
+.modal .sub { font-size:13px; color:var(--muted); margin-bottom:24px; }
+.track-sessions { display:flex; flex-direction:column; gap:10px; margin-top:20px; }
+.track-session {
+  padding: 16px;
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.08);
+}
+.ts-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
+.ts-time { font-family: 'Cormorant Garamond', serif; font-size:22px; color:var(--gold); }
+.ts-date { font-size:12px; color:var(--muted); }
+
+/* ── TOAST ── */
+.toast {
+  position:fixed; bottom:30px; right:30px;
+  background: var(--gold);
+  color: var(--black);
+  padding: 14px 24px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  z-index:300;
+  transform: translateY(80px);
+  opacity:0;
+  transition: all .3s;
+}
+.toast.show { transform:translateY(0); opacity:1; }
+
+@media(max-width:900px){
+  .builder { grid-template-columns:1fr; }
+  .preview-panel { position:static; height:auto; }
+  .form-panel { padding:28px 20px; }
+  nav { padding:16px 20px; }
+  .nav-brand { font-size:16px; }
+  .tab-btn { font-size:11px; padding:7px 14px; }
+  .dashboard { padding:24px 16px; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">Formo <span>Proposal Studio</span></div>
+  <div class="nav-tabs">
+    <button class="tab-btn active" onclick="switchTab('builder')">New Proposal</button>
+    <button class="tab-btn" onclick="switchTab('dashboard')">Dashboard</button>
+  </div>
+</nav>
+
+<!-- ═══════ BUILDER VIEW ═══════ -->
+<div class="view active" id="view-builder">
+<div class="builder">
+
+  <!-- FORM -->
+  <div class="form-panel">
+
+    <div class="section-title">New Proposal</div>
+    <div class="section-sub">Complete the fields below to generate a premium client proposal</div>
+
+    <!-- CLIENT INFO -->
+    <div class="grid-2">
+      <div class="form-group">
+        <label>Client Name</label>
+        <input type="text" id="clientName" placeholder="Anna & Eric Residence" oninput="updatePreview()">
+      </div>
+      <div class="form-group">
+        <label>Project Title</label>
+        <input type="text" id="projectTitle" placeholder="Interior Renovation" oninput="updatePreview()">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Property Address</label>
+      <input type="text" id="projectAddress" placeholder="1234 Oak Lane, Franklin, TN 37064" oninput="updatePreview()">
+    </div>
+    <div class="form-group">
+      <label>Notes / Special Considerations</label>
+      <textarea id="notes" placeholder="Client is present during weekdays, access via side gate..."></textarea>
+    </div>
+
+    <div class="form-divider"></div>
+
+    <!-- SCOPE -->
+    <div class="section-title">Scope of Work</div>
+    <div class="section-sub">Add each scope item — these become the proposal's sections</div>
+    <div class="scope-list" id="scopeList"></div>
+    <button class="add-btn" onclick="addScopeItem()">+ Add Scope Item</button>
+
+    <div class="form-divider"></div>
+
+    <!-- BUDGET -->
+    <div class="section-title">Investment Breakdown</div>
+    <div class="section-sub">Line items that appear in the budget section</div>
+    <div class="line-items" id="lineItems"></div>
+    <button class="add-btn" onclick="addLineItem()">+ Add Line Item</button>
+    <div class="total-display" style="margin-top:16px;">
+      <span class="label">Total Investment</span>
+      <span class="amount" id="totalDisplay">$0</span>
+    </div>
+
+    <div class="form-divider"></div>
+
+    <!-- IMAGES -->
+    <div class="section-title">Project Images</div>
+    <div class="section-sub">Upload photos to personalize the proposal — renders, before/afters, project photos</div>
+
+    <div id="proposalIdHidden" style="display:none"></div>
+
+    <div class="upload-zones">
+
+      <div class="upload-zone" id="zone-render">
+        <span class="upload-zone-label">3D Renders / Inspiration</span>
+        <span class="upload-zone-sub">These showcase the vision of the finished project</span>
+        <input type="file" accept="image/*" multiple onchange="handleUpload(this,'render')">
+        <div class="upload-previews" id="previews-render"></div>
+      </div>
+
+      <div class="upload-zone" id="zone-before_after">
+        <span class="upload-zone-label">Before & After Photos</span>
+        <span class="upload-zone-sub">Upload before photos — add after photos when complete</span>
+        <input type="file" accept="image/*" multiple onchange="handleUpload(this,'before_after')">
+        <div class="upload-previews" id="previews-before_after"></div>
+      </div>
+
+      <div class="upload-zone" id="zone-project">
+        <span class="upload-zone-label">Project / Hero Photos</span>
+        <span class="upload-zone-sub">Best image used as hero background</span>
+        <input type="file" accept="image/*" multiple onchange="handleUpload(this,'project')">
+        <div class="upload-previews" id="previews-project"></div>
+      </div>
+
+    </div>
+
+    <button class="generate-btn" id="generateBtn" onclick="generateProposal()">
+      <span class="btn-text">Generate Proposal</span>
+      <div class="spinner"></div>
+    </button>
+
+  </div>
+
+  <!-- PREVIEW PANEL -->
+  <div class="preview-panel">
+    <h3>Live Summary</h3>
+    <div class="preview-summary" id="previewSummary">
+      <div style="color:var(--muted);font-size:13px;text-align:center;padding:20px 0;">
+        Fill in the form to see your proposal summary
+      </div>
+    </div>
+    <div id="proposalLinkArea" style="display:none">
+      <a class="proposal-link" id="proposalLink" href="#" target="_blank">Open Client Proposal →</a>
+      <button class="copy-btn" id="copyBtn" onclick="copyLink()">Copy Shareable Link</button>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ═══════ DASHBOARD VIEW ═══════ -->
+<div class="view" id="view-dashboard">
+  <div class="dashboard">
+    <div class="dash-header">
+      <div>
+        <div class="dash-title">Proposal <span>Tracking</span></div>
+        <div style="font-size:13px;color:var(--muted);margin-top:4px;">Monitor client engagement in real time</div>
+      </div>
+      <button class="add-btn" style="width:auto;padding:12px 24px;" onclick="switchTab('builder')">+ New Proposal</button>
+    </div>
+    <div class="proposals-grid" id="proposalsGrid">
+      <div class="empty-state">
+        <div class="big">∅</div>
+        Loading proposals...
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ TRACKING MODAL ═══════ -->
+<div class="modal-overlay" id="trackModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">×</button>
+    <div id="modalContent"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── STATE ───────────────────────────────────────────────────────────────────
+let scopeItems = [];
+let lineItems = [];
+let uploadedImages = { render: [], before_after: [], project: [] };
+let currentProposalId = generateId();
+let generatedProposalId = null;
+
+function generateId() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+}
+
+// ─── TAB SWITCHING ────────────────────────────────────────────────────────────
+function switchTab(tab) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('view-' + tab).classList.add('active');
+  event.target.classList.add('active');
+  if (tab === 'dashboard') loadDashboard();
+}
+
+// ─── SCOPE ITEMS ──────────────────────────────────────────────────────────────
+function addScopeItem(val = '') {
+  const id = generateId();
+  scopeItems.push({ id, value: val });
+  renderScopeList();
+}
+
+function renderScopeList() {
+  const container = document.getElementById('scopeList');
+  container.innerHTML = scopeItems.map(item => `
+    <div class="scope-item" id="scope-${item.id}">
+      <input type="text" value="${escHtml(item.value)}"
+        placeholder="e.g. Interior painting — walls, trim, ceilings"
+        oninput="updateScopeItem('${item.id}', this.value); updatePreview()">
+      <button class="del-btn" onclick="deleteScopeItem('${item.id}')">×</button>
+    </div>
+  `).join('');
+}
+
+function updateScopeItem(id, val) {
+  const item = scopeItems.find(s => s.id === id);
+  if (item) item.value = val;
+}
+
+function deleteScopeItem(id) {
+  scopeItems = scopeItems.filter(s => s.id !== id);
+  renderScopeList();
+  updatePreview();
+}
+
+// ─── LINE ITEMS ───────────────────────────────────────────────────────────────
+function addLineItem(label = '', amount = '') {
+  const id = generateId();
+  lineItems.push({ id, label, amount });
+  renderLineItems();
+}
+
+function renderLineItems() {
+  const container = document.getElementById('lineItems');
+  container.innerHTML = lineItems.map(item => `
+    <div class="line-item" id="line-${item.id}">
+      <input type="text" value="${escHtml(item.label)}"
+        placeholder="Labor & Materials"
+        oninput="updateLineItem('${item.id}','label',this.value); updatePreview()">
+      <input type="number" value="${item.amount}"
+        placeholder="0"
+        oninput="updateLineItem('${item.id}','amount',this.value); updatePreview()">
+      <button class="del-btn" onclick="deleteLineItem('${item.id}')">×</button>
+    </div>
+  `).join('');
+}
+
+function updateLineItem(id, field, val) {
+  const item = lineItems.find(l => l.id === id);
+  if (item) item[field] = val;
+}
+
+function deleteLineItem(id) {
+  lineItems = lineItems.filter(l => l.id !== id);
+  renderLineItems();
+  updatePreview();
+}
+
+function getTotal() {
+  return lineItems.reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
+}
+
+// ─── IMAGE UPLOAD ─────────────────────────────────────────────────────────────
+async function handleUpload(input, category) {
+  const files = Array.from(input.files);
+  if (!files.length) return;
+
+  const formData = new FormData();
+  formData.append('proposalId', currentProposalId);
+  formData.append('category', category);
+  files.forEach(f => formData.append('images', f));
+
+  try {
+    const res = await fetch('/api/upload', { method: 'POST', body: formData });
+    const data = await res.json();
+    if (data.success) {
+      uploadedImages[category] = [...uploadedImages[category], ...data.files];
+      renderPreviews(category);
+      showToast(`${data.files.length} image(s) uploaded`);
+    }
+  } catch (err) {
+    // Show local previews at minimum
+    files.forEach(f => {
+      const reader = new FileReader();
+      reader.onload = e => {
+        uploadedImages[category].push({ url: e.target.result, category });
+        renderPreviews(category);
+      };
+      reader.readAsDataURL(f);
+    });
+  }
+}
+
+function renderPreviews(category) {
+  const container = document.getElementById('previews-' + category);
+  container.innerHTML = uploadedImages[category].map(img =>
+    `<img class="preview-thumb" src="${img.url}" alt="">`
+  ).join('');
+}
+
+// ─── PREVIEW PANEL ────────────────────────────────────────────────────────────
+function updatePreview() {
+  const clientName = document.getElementById('clientName').value;
+  const projectTitle = document.getElementById('projectTitle').value;
+  const address = document.getElementById('projectAddress').value;
+  const total = getTotal();
+
+  document.getElementById('totalDisplay').textContent = '$' + total.toLocaleString();
+
+  const container = document.getElementById('previewSummary');
+  if (!clientName && !projectTitle) {
+    container.innerHTML = `<div style="color:var(--muted);font-size:13px;text-align:center;padding:20px 0;">Fill in the form to see your proposal summary</div>`;
+    return;
+  }
+
+  container.innerHTML = `
+    <div class="preview-row"><span class="pk">Client</span><span class="pv">${clientName || '—'}</span></div>
+    <div class="preview-row"><span class="pk">Project</span><span class="pv">${projectTitle || '—'}</span></div>
+    <div class="preview-row"><span class="pk">Address</span><span class="pv" style="font-size:12px;">${address || '—'}</span></div>
+    <div class="preview-row"><span class="pk">Scope Items</span><span class="pv">${scopeItems.filter(s=>s.value).length}</span></div>
+    <div class="preview-row"><span class="pk">Line Items</span><span class="pv">${lineItems.filter(l=>l.label).length}</span></div>
+    <div class="preview-total">$${total.toLocaleString()}</div>
+    <div class="preview-scope">
+      ${scopeItems.filter(s=>s.value).map(s => `<div class="preview-scope-item">${s.value}</div>`).join('')}
+    </div>
+  `;
+}
+
+// ─── GENERATE ─────────────────────────────────────────────────────────────────
+async function generateProposal() {
+  const clientName = document.getElementById('clientName').value.trim();
+  if (!clientName) { showToast('Enter client name first'); return; }
+  if (lineItems.length === 0) { showToast('Add at least one line item'); return; }
+
+  const btn = document.getElementById('generateBtn');
+  btn.disabled = true; btn.classList.add('loading');
+
+  const allImages = [
+    ...uploadedImages.render,
+    ...uploadedImages.before_after,
+    ...uploadedImages.project
+  ];
+
+  const proposalData = {
+    proposalId: currentProposalId,
+    clientName: document.getElementById('clientName').value,
+    projectTitle: document.getElementById('projectTitle').value,
+    projectAddress: document.getElementById('projectAddress').value,
+    notes: document.getElementById('notes').value,
+    scopeItems: scopeItems.filter(s => s.value).map(s => s.value),
+    lineItems: lineItems.filter(l => l.label).map(l => ({ label: l.label, amount: parseFloat(l.amount)||0 })),
+    totalAmount: getTotal()
+  };
+
+  try {
+    const res = await fetch('/api/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ proposalData, images: allImages })
+    });
+    const data = await res.json();
+
+    if (data.success) {
+      generatedProposalId = data.proposalId;
+      const viewUrl = window.location.origin + data.viewUrl;
+
+      document.getElementById('proposalLinkArea').style.display = 'block';
+      document.getElementById('proposalLink').href = data.viewUrl;
+      document.getElementById('copyBtn').dataset.url = viewUrl;
+
+      showToast('Proposal generated! ✓');
+    } else {
+      showToast('Error: ' + (data.error || 'Unknown error'));
+    }
+  } catch (err) {
+    showToast('Failed to generate: ' + err.message);
+  } finally {
+    btn.disabled = false; btn.classList.remove('loading');
+  }
+}
+
+function copyLink() {
+  const url = document.getElementById('copyBtn').dataset.url;
+  navigator.clipboard.writeText(url).then(() => {
+    const btn = document.getElementById('copyBtn');
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = 'Copy Shareable Link';
+      btn.classList.remove('copied');
+    }, 2000);
+  });
+}
+
+// ─── DASHBOARD ────────────────────────────────────────────────────────────────
+async function loadDashboard() {
+  const grid = document.getElementById('proposalsGrid');
+  grid.innerHTML = `<div class="empty-state"><div class="big">⟳</div>Loading...</div>`;
+
+  try {
+    const res = await fetch('/api/proposals');
+    const proposals = await res.json();
+
+    if (proposals.length === 0) {
+      grid.innerHTML = `
+        <div class="empty-state">
+          <div class="big">∅</div>
+          No proposals yet. Create your first one.
+        </div>`;
+      return;
+    }
+
+    grid.innerHTML = proposals.map(p => {
+      const totalSec = p.totalTimeSeconds || 0;
+      const mins = Math.floor(totalSec / 60);
+      const secs = totalSec % 60;
+      const timeStr = totalSec > 0 ? `${mins}m ${secs}s` : '—';
+      const viewCount = p.views?.length || 0;
+      const opened = viewCount > 0;
+      const date = new Date(p.createdAt).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
+
+      return `
+        <div class="proposal-card" onclick="openTrackModal('${p.proposalId}')">
+          <div class="viewed-badge ${opened ? 'opened' : 'unopened'}">
+            ${opened ? `✓ Opened ${viewCount} time${viewCount>1?'s':''}` : '● Not yet opened'}
+          </div>
+          <div class="pc-client">${escHtml(p.clientName)}</div>
+          <div class="pc-project">${escHtml(p.projectAddress || '')}</div>
+          <div class="pc-stats">
+            <div class="pc-stat">
+              <span class="num">${viewCount}</span>
+              <span class="lbl">Opens</span>
+            </div>
+            <div class="pc-stat">
+              <span class="num">${timeStr}</span>
+              <span class="lbl">Total Time</span>
+            </div>
+            <div class="pc-stat">
+              <span class="num">${p.lastViewed ? new Date(p.lastViewed).toLocaleDateString('en-US',{month:'short',day:'numeric'}) : '—'}</span>
+              <span class="lbl">Last Seen</span>
+            </div>
+          </div>
+          <div class="pc-total">$${Number(p.totalAmount).toLocaleString()}</div>
+          <div class="pc-date">Sent ${date}</div>
+          <div class="pc-actions" onclick="event.stopPropagation()">
+            <a class="pc-btn primary" href="/view/${p.proposalId}" target="_blank">View Proposal</a>
+            <button class="pc-btn" onclick="copyProposalLink('${p.proposalId}',this)">Copy Link</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  } catch (err) {
+    grid.innerHTML = `<div class="empty-state"><div class="big">!</div>Could not load proposals</div>`;
+  }
+}
+
+function copyProposalLink(id, btn) {
+  const url = window.location.origin + '/view/' + id;
+  navigator.clipboard.writeText(url).then(() => {
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy Link', 2000);
+  });
+}
+
+async function openTrackModal(proposalId) {
+  document.getElementById('trackModal').classList.add('open');
+  document.getElementById('modalContent').innerHTML = '<div style="color:var(--muted);text-align:center;padding:20px">Loading...</div>';
+
+  try {
+    const res = await fetch('/api/proposals/' + proposalId);
+    const p = await res.json();
+
+    const totalSec = p.totalTimeSeconds || 0;
+    const mins = Math.floor(totalSec / 60);
+    const secs = totalSec % 60;
+
+    let sessionsHtml = '';
+    if (p.views?.length > 0) {
+      sessionsHtml = `
+        <div style="margin-top:20px;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:12px">View Sessions</div>
+        <div class="track-sessions">
+          ${p.views.map((v,i) => {
+            const d = new Date(v.openedAt);
+            const timeOnPage = v.duration ? `${Math.floor(v.duration/60)}m ${v.duration%60}s` : 'active';
+            return `
+              <div class="track-session">
+                <div class="ts-top">
+                  <span class="ts-time">${timeOnPage}</span>
+                  <span class="ts-date">${d.toLocaleDateString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})}</span>
+                </div>
+                <div style="font-size:11px;color:var(--muted2)">${v.userAgent?.slice(0,60) || 'Unknown device'}…</div>
+              </div>
+            `;
+          }).join('')}
+        </div>`;
+    } else {
+      sessionsHtml = `<div style="color:var(--muted);font-size:14px;text-align:center;padding:24px 0">Client hasn't opened this proposal yet</div>`;
+    }
+
+    document.getElementById('modalContent').innerHTML = `
+      <h2>${escHtml(p.clientName)}</h2>
+      <div class="sub">${escHtml(p.projectAddress || '')} · Created ${new Date(p.createdAt).toLocaleDateString()}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin:20px 0">
+        <div style="text-align:center;padding:16px;border:1px solid var(--gold-line)">
+          <div style="font-family:'Cormorant Garamond',serif;font-size:36px;color:var(--gold)">${p.views?.length||0}</div>
+          <div style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted)">Opens</div>
+        </div>
+        <div style="text-align:center;padding:16px;border:1px solid var(--gold-line)">
+          <div style="font-family:'Cormorant Garamond',serif;font-size:36px;color:var(--gold)">${mins}m ${secs}s</div>
+          <div style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted)">Total Time</div>
+        </div>
+        <div style="text-align:center;padding:16px;border:1px solid var(--gold-line)">
+          <div style="font-family:'Cormorant Garamond',serif;font-size:36px;color:var(--gold)">$${Number(p.totalAmount).toLocaleString()}</div>
+          <div style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted)">Total</div>
+        </div>
+      </div>
+      ${sessionsHtml}
+    `;
+  } catch(err) {
+    document.getElementById('modalContent').innerHTML = '<div style="color:var(--red)">Error loading data</div>';
+  }
+}
+
+function closeModal() {
+  document.getElementById('trackModal').classList.remove('open');
+}
+document.getElementById('trackModal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+// ─── UTILS ────────────────────────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+function escHtml(str) {
+  return String(str||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+// Pre-load the example from the SOW
+addScopeItem('Interior painting — walls, trim, doors, crown molding & millwork');
+addScopeItem('Hardwood flooring installation in upstairs hallway (~190 sqft)');
+addScopeItem('Carpet & pad replacement in upstairs bedrooms (~501 sqft)');
+addScopeItem('Drywall & ceiling repairs, nail pops, sanding, caulking');
+
+addLineItem('Flooring & Carpet Replacement', 2700);
+addLineItem('Interior Painting', 3800);
+addLineItem('Drywall Repairs', 200);
+
+updatePreview();
+</script>
+</body>
+</html>
