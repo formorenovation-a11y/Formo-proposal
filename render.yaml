@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: formo-proposal-studio
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: NODE_ENV
+        value: production
+    disk:
+      name: proposals-data
+      mountPath: /app/proposals
+      sizeGB: 1
