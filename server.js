@@ -278,7 +278,12 @@ DESIGN RULES:
 - Single self-contained HTML file, all CSS in <style> tag
 - Google Fonts import at top
 - Cormorant Garamond for all headings, Jost for body
-- IntersectionObserver fade-in animations on scroll
+- Scroll animations: use IntersectionObserver to add a class like "visible" that transitions opacity from 0 to 1 and translateY from 20px to 0. CRITICAL: elements must have opacity:1 and be fully visible by default — only add the animation as an enhancement. Never leave sections with opacity:0 as default. Use this exact pattern:
+  CSS: .fade { opacity:0; transform:translateY(24px); transition:opacity .6s ease, transform .6s ease; }
+       .fade.visible { opacity:1; transform:translateY(0); }
+  JS: const obs = new IntersectionObserver(entries => entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); }), {threshold:0.1});
+      document.querySelectorAll('.fade').forEach(el => obs.observe(el));
+  ALSO add this fallback after the observer: setTimeout(() => document.querySelectorAll('.fade').forEach(el => el.classList.add('visible')), 800);
 - Gold diamond (◆) dividers between sections
 - Mobile responsive
 - Luxury feel — NOT a contractor quote sheet
