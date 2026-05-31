@@ -295,28 +295,38 @@ OUTPUT: Return ONLY the HTML. Start with <!DOCTYPE html>. No markdown. No explan
 // ─── TRACKING INJECTION ───────────────────────────────────────────────────────
 
 function injectTracking(html, proposalId) {
-  const script = `
-<script>
-(function() {
-  var PID = '${proposalId}';
-  var SID = Math.random().toString(36).slice(2);
-  var BASE = window.location.origin;
-  var t0 = Date.now();
-  var on = true;
-  function ping(ev) {
-    var body = JSON.stringify({ proposalId:PID, sessionId:SID, event:ev,
-      duration:Math.round((Date.now()-t0)/1000), userAgent:navigator.userAgent, referrer:document.referrer });
-    try { navigator.sendBeacon(BASE+'/api/track', new Blob([body],{type:'application/json'})); } catch(e) {}
-  }
-  ping('open');
-  setInterval(function(){ if(on) ping('heartbeat'); }, 30000);
-  window.addEventListener('beforeunload', function(){ ping('close'); });
-  document.addEventListener('visibilitychange', function(){
-    if(document.hidden){ ping('close'); on=false; } else { t0=Date.now(); on=true; ping('open'); }
+  // Fix 1: hero overlay — cap dark overlays at 0.45 opacity so photos show through
+  let fixed = html.replace(/rgba\(\s*0\s*,\s*0\s*,\s*0\s*,\s*(0\.\d+)\s*\)/g, (match, alpha) => {
+    const val = parseFloat(alpha);
+    return val > 0.55 ? 'rgba(0,0,0,0.45)' : match;
   });
+
+  // Fix 2: remove opacity:0 from CSS so animations don't hide content
+  fixed = fixed.replace(/opacity\s*:\s*0\b/g, 'opacity:1');
+
+  // Fix 3: inject force-visible override + tracking script
+  const script = `
+<style>
+.fade,.fade-in,[class*="animate"],[class*="reveal"]{opacity:1!important;transform:none!important;visibility:visible!important;}
+</style>
+<script>
+(function(){
+  function show(){document.querySelectorAll('section,div,h1,h2,h3,p,ul,li,img').forEach(function(el){var s=window.getComputedStyle(el);if(s.opacity==='0'||s.visibility==='hidden'){el.style.opacity='1';el.style.visibility='visible';el.style.transform='none';}});}
+  show();setTimeout(show,200);setTimeout(show,800);
+  var PID='PROPOSAL_ID_PLACEHOLDER';
+  var SID=Math.random().toString(36).slice(2);
+  var BASE=window.location.origin;
+  var t0=Date.now(),on=true;
+  function ping(ev){var body=JSON.stringify({proposalId:PID,sessionId:SID,event:ev,duration:Math.round((Date.now()-t0)/1000),userAgent:navigator.userAgent,referrer:document.referrer});try{navigator.sendBeacon(BASE+'/api/track',new Blob([body],{type:'application/json'}));}catch(e){}}
+  ping('open');
+  setInterval(function(){if(on)ping('heartbeat');},30000);
+  window.addEventListener('beforeunload',function(){ping('close');});
+  document.addEventListener('visibilitychange',function(){if(document.hidden){ping('close');on=false;}else{t0=Date.now();on=true;ping('open');}});
 })();
 <\/script>`;
-  return html.replace('</body>', script + '\n</body>');
+
+  const finalScript = script.replace('PROPOSAL_ID_PLACEHOLDER', proposalId);
+  return fixed.replace('</body>', finalScript + '\n</body>');
 }
 
 app.listen(PORT, () => {
