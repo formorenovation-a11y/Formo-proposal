@@ -580,24 +580,25 @@ function addScopeItem(title='', description='', icon='general') {
 }
 
 function renderServiceZones() {
-  const container = document.getElementById('serviceZoneList');
+  var container = document.getElementById('serviceZoneList');
   if (!container) return;
-  const validItems = scopeItems.filter(s => s.title);
+  var validItems = scopeItems.filter(function(s){ return s.title; });
   if (!validItems.length) {
-    container.innerHTML = '<div style="font-size:12px;color:var(--muted2);padding:10px 0">Agrega servicios en el paso 2 para ver las zonas de upload</div>';
+    container.innerHTML = '<div style="font-size:12px;color:var(--muted2);padding:10px 0">Add services in step 2 to see upload zones here</div>';
     return;
   }
-  let zonesHtml = '';
-  validItems.forEach(function(s, idx) {
-    const previewId = 'previews-service_' + idx;
-    const safeTitle = s.title.replace(/"/g, '&quot;').replace(/</g, '&lt;');
-    zonesHtml += '<div class="upload-zone" style="position:relative;">'
+  var zonesHtml = '';
+  for (var idx = 0; idx < validItems.length; idx++) {
+    var s = validItems[idx];
+    var safeTitle = (s.title || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    var cat = 'service_' + idx;
+    zonesHtml += '<div class="upload-zone" style="position:relative;margin-bottom:8px">'
       + '<span class="upload-zone-label" style="font-size:10px">' + safeTitle + '</span>'
-      + '<span class="upload-zone-sub" style="font-size:11px">Fotos para esta categoría</span>'
-      + '<input type="file" accept="image/*" multiple onchange="handleUpload(this,'service_' + idx + '')">'
-      + '<div class="upload-previews" id="' + previewId + '"></div>'
+      + '<span class="upload-zone-sub" style="font-size:11px">Photos for this service</span>'
+      + '<input type="file" accept="image/*" multiple data-category="' + cat + '" onchange="handleUpload(this, this.dataset.category)">'
+      + '<div class="upload-previews" id="previews-' + cat + '"></div>'
       + '</div>';
-  });
+  }
   container.innerHTML = zonesHtml;
 }
 
