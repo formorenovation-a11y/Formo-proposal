@@ -681,10 +681,26 @@ async function handleUpload(input, category) {
 }
 
 function renderPreviews(cat) {
-  const c = document.getElementById('previews-' + cat);
-  if (c && uploadedImages[cat]) {
-    c.innerHTML = uploadedImages[cat].map(function(i){ return '<img class="preview-thumb" src="' + i.url + '">'; }).join('');
+  var c = document.getElementById('previews-' + cat);
+  if (!c || !uploadedImages[cat]) return;
+  var out = '';
+  var imgs = uploadedImages[cat];
+  for (var i = 0; i < imgs.length; i++) {
+    out += '<div style="position:relative;display:inline-block;margin:4px">';
+    out += '<img src="' + imgs[i].url + '" style="width:72px;height:72px;object-fit:cover;border:1px solid rgba(201,169,110,0.3);display:block;border-radius:2px">';
+    out += '<button data-cat="' + cat + '" data-idx="' + i + '" onclick="removeImage(this)" style="position:absolute;top:-6px;right:-6px;width:18px;height:18px;background:#c97070;border:none;border-radius:50%;color:#fff;font-size:12px;line-height:1;text-align:center;cursor:pointer;padding:0">x</button>';
+    out += '</div>';
   }
+  c.innerHTML = out;
+}
+
+function removeImage(btn) {
+  var cat = btn.dataset.cat;
+  var idx = parseInt(btn.dataset.idx);
+  if (!uploadedImages[cat]) return;
+  uploadedImages[cat].splice(idx, 1);
+  renderPreviews(cat);
+  updatePreview();
 }
 
 // ─── PREVIEW PANEL ────────────────────────────────────────────────────────────
@@ -788,6 +804,23 @@ function copyLink() {
 }
 
 // ─── DASHBOARD ────────────────────────────────────────────────────────────────
+async function deleteProposal(proposalId, evt) {
+  evt.stopPropagation();
+  if (!confirm('Delete this proposal? This cannot be undone.')) return;
+  try {
+    const res = await fetch('/api/proposals/' + proposalId, { method: 'DELETE' });
+    const data = await res.json();
+    if (data.success) {
+      showToast('Proposal deleted');
+      loadDashboard();
+    } else {
+      showToast('Error: ' + (data.error || 'Could not delete'));
+    }
+  } catch(e) {
+    showToast('Error: ' + e.message);
+  }
+}
+
 async function loadDashboard() {
   const grid = document.getElementById('proposalsGrid');
   grid.innerHTML = `<div class="empty-state"><div class="big">⟳</div>Loading...</div>`;
@@ -816,8 +849,9 @@ async function loadDashboard() {
           <div class="pc-total">$${Number(p.totalAmount).toLocaleString()}</div>
           <div class="pc-date">Created ${date}</div>
           <div class="pc-actions" onclick="event.stopPropagation()">
-            <a class="pc-btn" href="/view/${p.proposalId}" target="_blank">View</a>
-            <button class="pc-btn" onclick="navigator.clipboard.writeText(window.location.origin+'/view/${p.proposalId}');showToast('Copied')">Copy Link</button>
+            <a class="pc-btn" href="/view/${p.proposalId}" target="_blank" style="border-color:rgba(201,169,110,0.3);color:var(--gold)">View</a>
+            <button class="pc-btn" onclick="navigator.clipboard.writeText(window.location.origin+'/view/${p.proposalId}');showToast('Link copied!')">Copy Link</button>
+            <button class="pc-btn" style="border-color:rgba(201,112,112,0.25);color:var(--red)" onclick="deleteProposal('${p.proposalId}', event)">Delete</button>
           </div>
         </div>`;
     }).join('');
