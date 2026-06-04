@@ -243,36 +243,38 @@ textarea { resize:vertical; min-height:90px; }
       <div class="section-title">Upload Your Estimate</div>
       <div class="section-sub">Upload your internal PDF — Claude reads it and builds the proposal automatically</div>
 
-      <!-- PDF drop zone -->
-      <div class="pdf-upload-zone" id="pdfZone" onclick="document.getElementById('pdfFileInput').click()" style="cursor:pointer">
-        <div class="pdf-icon">
-          <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
-            <rect x="6" y="2" width="22" height="30" rx="2" stroke="#C9A96E" stroke-width="1.5"/>
-            <path d="M22 2v8h6" stroke="#C9A96E" stroke-width="1.5"/>
-            <path d="M11 16h12M11 21h8" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round"/>
-          </svg>
+      <!-- PDF upload — label wraps input for iOS Safari compatibility -->
+      <label for="pdfFileInput" style="display:block;cursor:pointer">
+        <div class="pdf-upload-zone" id="pdfZone">
+          <div class="pdf-icon">
+            <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+              <rect x="6" y="2" width="22" height="30" rx="2" stroke="#C9A96E" stroke-width="1.5"/>
+              <path d="M22 2v8h6" stroke="#C9A96E" stroke-width="1.5"/>
+              <path d="M11 16h12M11 21h8" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <span class="pdf-upload-label" id="pdfZoneLabel">Tap to select your estimate PDF</span>
+          <span class="pdf-upload-sub">Internal estimate · CONFIDENTIAL · Prices will not be exposed to client</span>
         </div>
-        <span class="pdf-upload-label" id="pdfZoneLabel">Select your estimate PDF</span>
-        <span class="pdf-upload-sub">Internal estimate · CONFIDENTIAL · Prices will not be exposed to client</span>
-        <input type="file" accept="application/pdf" id="pdfFileInput" style="display:none" onchange="onPdfSelected(this)">
+      </label>
+      <input type="file" accept="application/pdf" id="pdfFileInput" style="display:none" onchange="onPdfSelected(this)">
+
+      <!-- Selected file info -->
+      <div id="pdfSelectedRow" style="display:none;margin-top:12px;padding:14px 18px;border:1px solid var(--gold-line);background:rgba(201,169,110,0.05);align-items:center;gap:12px;flex-wrap:wrap">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" style="flex-shrink:0"><rect x="2" y="1" width="11" height="16" rx="1" stroke="#C9A96E" stroke-width="1.2"/><path d="M11 1v4h3" stroke="#C9A96E" stroke-width="1.2"/><path d="M5 8h6M5 11h4" stroke="#C9A96E" stroke-width="1.2" stroke-linecap="round"/></svg>
+        <span id="pdfFileName" style="flex:1;font-size:13px;color:var(--cream);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
+        <label for="pdfFileInput" style="cursor:pointer;background:none;border:1px solid rgba(255,255,255,0.15);color:var(--muted);font-family:'Jost',sans-serif;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;padding:6px 12px">Change</label>
       </div>
 
-      <!-- Selected file + execute button -->
-      <div id="pdfSelectedRow" style="display:none;margin-top:12px;padding:14px 18px;border:1px solid var(--gold-line);background:rgba(201,169,110,0.05);display:none;align-items:center;gap:12px">
-        <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2" y="1" width="11" height="16" rx="1" stroke="#C9A96E" stroke-width="1.2"/><path d="M11 1v4h3" stroke="#C9A96E" stroke-width="1.2"/><path d="M5 8h6M5 11h4" stroke="#C9A96E" stroke-width="1.2" stroke-linecap="round"/></svg>
-        <span id="pdfFileName" style="flex:1;font-size:13px;color:var(--cream);overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
-        <button onclick="document.getElementById('pdfFileInput').click()" style="background:none;border:1px solid rgba(255,255,255,0.1);color:var(--muted);font-family:'Jost',sans-serif;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;padding:6px 12px;cursor:pointer">Change</button>
-      </div>
-
-      <button id="pdfParseBtn" onclick="executePdfParse()" style="display:none;width:100%;margin-top:10px;background:var(--gold);color:var(--black);border:none;font-family:'Jost',sans-serif;font-size:13px;font-weight:600;letter-spacing:3px;text-transform:uppercase;padding:16px;cursor:pointer;transition:all .2s">
-        <span id="pdfParseBtnText">Parse Estimate with AI →</span>
-        <span id="pdfParseBtnSpinner" style="display:none">
-          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" style="animation:spin .7s linear infinite;vertical-align:middle"><circle cx="9" cy="9" r="7" stroke="rgba(0,0,0,0.25)" stroke-width="2"/><path d="M9 2a7 7 0 017 7" stroke="#191816" stroke-width="2" stroke-linecap="round"/></svg>
-          Analyzing PDF...
-        </span>
+      <!-- Parse button — always visible once file selected -->
+      <button id="pdfParseBtn" onclick="executePdfParse()" style="display:none;width:100%;margin-top:12px;background:var(--gold);color:var(--black);border:none;font-family:'Jost',sans-serif;font-size:13px;font-weight:600;letter-spacing:3px;text-transform:uppercase;padding:18px;cursor:pointer">
+        Parse Estimate with AI →
+      </button>
+      <button id="pdfParseBtnLoading" style="display:none;width:100%;margin-top:12px;background:rgba(201,169,110,0.5);color:var(--black);border:none;font-family:'Jost',sans-serif;font-size:13px;font-weight:600;letter-spacing:2px;text-transform:uppercase;padding:18px;cursor:not-allowed">
+        ⟳ Analyzing PDF...
       </button>
 
-      <div class="pdf-status" id="pdfStatus"></div>
+      <div class="pdf-status" id="pdfStatus" style="margin-top:12px"></div>
 
       <div class="form-divider"></div>
       <div class="section-sub" style="text-align:center">— or fill in manually —</div>
@@ -488,32 +490,28 @@ function onPdfSelected(input) {
   document.getElementById('pdfFileName').textContent = file.name;
 
   // Update zone label
-  document.getElementById('pdfZoneLabel').textContent = 'PDF selected — ready to parse';
+  document.getElementById('pdfZoneLabel').textContent = '✓ ' + file.name + ' — ready to parse';
 
   // Show parse button
   document.getElementById('pdfParseBtn').style.display = 'block';
+  document.getElementById('pdfParseBtnLoading').style.display = 'none';
 
-  // Clear any previous status
+  // Clear previous status
   const status = document.getElementById('pdfStatus');
   status.className = 'pdf-status';
-  status.style.display = 'none';
+  status.textContent = '';
 }
 
 async function executePdfParse() {
   if (!selectedPdfFile) { showToast('Select a PDF first'); return; }
 
   const status = document.getElementById('pdfStatus');
-  const btn = document.getElementById('pdfParseBtn');
-  const btnText = document.getElementById('pdfParseBtnText');
-  const btnSpinner = document.getElementById('pdfParseBtnSpinner');
-
-  // Loading state
-  btn.disabled = true;
-  btnText.style.display = 'none';
-  btnSpinner.style.display = 'inline';
+  // Loading state — swap buttons
+  document.getElementById('pdfParseBtn').style.display = 'none';
+  document.getElementById('pdfParseBtnLoading').style.display = 'block';
   status.style.display = 'block';
   status.className = 'pdf-status loading';
-  status.textContent = '⟳ Claude is reading your estimate...';
+  status.textContent = '⟳ Claude is reading your estimate... this takes 10-20 seconds';
 
   const formData = new FormData();
   formData.append('pdf', selectedPdfFile);
@@ -545,9 +543,8 @@ async function executePdfParse() {
     status.textContent = '✗ ' + err.message;
     showToast('Error: ' + err.message.slice(0, 60));
   } finally {
-    btn.disabled = false;
-    btnText.style.display = 'inline';
-    btnSpinner.style.display = 'none';
+    document.getElementById('pdfParseBtn').style.display = 'block';
+    document.getElementById('pdfParseBtnLoading').style.display = 'none';
   }
 }
 
